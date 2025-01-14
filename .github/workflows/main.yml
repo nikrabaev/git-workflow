@@ -1,0 +1,15 @@
+on:
+  release:
+    types: [released]
+jobs:
+  deploy-to-prod:
+    runs-on: ubuntu-latest
+    steps:
+      - run: RELEASE_BRANCH="feature/${TAG_NAME#v}" echo "RELEASE_BRANCH=$RELEASE_BRANCH" >> $GITHUB_ENV
+        env:
+          TAG_NAME: ${{ github.event.release.tag_name }}
+      - run: gh pr create -B master -H $RELEASE_BRANCH
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ github.event.release.tag_name }}
+          RELEASE_BRANCH: ${{ env.RELEASE_BRANCH }}
